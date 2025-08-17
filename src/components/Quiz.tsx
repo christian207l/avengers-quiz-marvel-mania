@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, RotateCcw, Trophy } from 'lucide-react';
+import { CheckCircle, XCircle, RotateCcw, Trophy, Play, Loader2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 import ironManImg from '@/assets/iron-man.jpg';
@@ -11,6 +11,7 @@ import captainAmericaImg from '@/assets/captain-america.jpg';
 import thorImg from '@/assets/thor.jpg';
 import hulkImg from '@/assets/hulk.jpg';
 import blackWidowImg from '@/assets/black-widow.jpg';
+import avengersHeroImg from '@/assets/avengers-hero.jpg';
 
 interface Question {
   id: number;
@@ -105,12 +106,23 @@ const questions: Question[] = [
 ];
 
 export const Quiz = () => {
+  const [gameStarted, setGameStarted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [quizCompleted, setQuizCompleted] = useState(false);
+
+  const startGame = () => {
+    setIsLoading(true);
+    // Simula carregamento com delay
+    setTimeout(() => {
+      setIsLoading(false);
+      setGameStarted(true);
+    }, 2000);
+  };
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (selectedAnswer !== null) return;
@@ -143,6 +155,7 @@ export const Quiz = () => {
     setScore(0);
     setAnswers([]);
     setQuizCompleted(false);
+    setGameStarted(false);
   };
 
   const getScoreMessage = () => {
@@ -152,6 +165,93 @@ export const Quiz = () => {
     if (percentage >= 50) return "👍 Bom trabalho! Continue estudando!";
     return "💪 Continue tentando! Todo herói precisa treinar!";
   };
+
+  // Tela de carregamento
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 text-center bg-gradient-to-br from-card to-muted border-border animate-fade-in">
+          <div className="mb-6">
+            <Loader2 className="w-16 h-16 mx-auto mb-4 text-primary animate-spin" />
+            <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Carregando Quiz...
+            </h2>
+            <p className="text-muted-foreground">
+              Preparando as perguntas dos heróis
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse w-full"></div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Tela inicial
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background Hero Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={avengersHeroImg}
+            alt="Avengers"
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center max-w-4xl animate-fade-in">
+          <div className="mb-8">
+            <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-glow">
+              QUIZ DOS
+            </h1>
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+              VINGADORES
+            </h2>
+          </div>
+
+          <div className="mb-8 space-y-4">
+            <p className="text-xl md:text-2xl text-foreground mb-4">
+              Teste seus conhecimentos sobre os heróis mais poderosos da Terra
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-accent" />
+                <span>10 perguntas épicas</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-accent" />
+                <span>Sistema de pontuação</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-accent" />
+                <span>Imagens dos heróis</span>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            onClick={startGame}
+            size="lg"
+            className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground font-bold text-xl px-12 py-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl animate-glow"
+          >
+            <Play className="mr-3 h-6 w-6" />
+            INICIAR PARTIDA
+          </Button>
+
+          <div className="mt-8 text-sm text-muted-foreground">
+            Pressione o botão para começar sua jornada heroica
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (quizCompleted) {
     return (
@@ -178,7 +278,7 @@ export const Quiz = () => {
 
           <Button onClick={restartQuiz} className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity">
             <RotateCcw className="mr-2 h-4 w-4" />
-            Jogar Novamente
+            Nova Partida
           </Button>
         </Card>
       </div>
